@@ -75,9 +75,9 @@ const styles = StyleSheet.create({
        alignSelf: "flex-start",
     },
     backText: {
-        fontSize: 18,
+        fontSize: 16,
         color: "#111",
-    },
+      },
     content: {
         flex: 1,
         justifyContent: "center",

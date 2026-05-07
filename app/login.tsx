@@ -44,7 +44,7 @@ export default function Login() {
             <Text style={styles.primaryButtonText}> Log In </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.push("/signup")}>
+        <TouchableOpacity onPress={() => router.push("/forgot-password")}>
             <Text style={styles.signupText}> 
                 Trouble logging in?
             </Text>
@@ -72,9 +72,9 @@ const styles = StyleSheet.create({
        alignSelf: "flex-start",
     },
     backText: {
-        fontSize: 18,
+        fontSize: 16,
         color: "#111",
-    },
+      },
     content: {
         flex: 1,
         justifyContent: "center",
