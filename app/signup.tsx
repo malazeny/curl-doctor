@@ -49,7 +49,7 @@ export default function Signup() {
             secureTextEntry={true}
         />
 
-        <TouchableOpacity style={styles.primaryButton}>
+        <TouchableOpacity style={styles.primaryButton} onPress={() => router.push("/quiz")}>
             <Text style={styles.primaryButtonText}> Create Account </Text>
         </TouchableOpacity>
 
