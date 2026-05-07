@@ -16,7 +16,7 @@ export default function HomeScreen() {
 
         <Text style = {styles.subtitle}> 
             Personalized haircare {"\n"}
-            made for your curls 
+            made for your hair needs 
         </Text>
         </View>
 
@@ -47,7 +47,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1, 
-        backgroundColor: "#F7F1E8",
+        backgroundColor: "#faf4d9",
         justifyContent: "space-between",
         alignItems: "center",
         paddingTop: 350,
