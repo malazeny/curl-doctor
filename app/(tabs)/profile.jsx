@@ -4,16 +4,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
 
 import { router } from "expo-router";
-import { routineRules } from "../Data/routines";
-import { productRecommendations } from "../Data/products";
 
-export default function Dashboard() {
+export default function Profile() {
     const [answers, setAnswers] = useState({});
 
     useEffect (() => {
@@ -28,159 +26,156 @@ export default function Dashboard() {
         loadAnswers();
     }, []);
 
-    const name = answers.name || "there";  
-    
-    const concerns = Array.isArray(answers[5])
-        ? answers[5] 
-        : [answers[5]];
+    const name = answers.name || "Curl Friend";   
 
     const goals = Array.isArray(answers[10])
-        ? answers[10] 
+        ? answers[10]
         : [answers[10]];
     
-    const selectedNeeds = [...concerns, ...goals].filter(Boolean);
-
-    const dailyTasks = [];
-    const weeklyTasks = [];
-    const products = [];
-
-    selectedNeeds.forEach((need) => {
-        const rules = routineRules[need];
-
-        if (rules) {
-            dailyTasks.push(...rules.daily);
-            weeklyTasks.push(...rules.weekly);
-        }
-
-        if (productRecommendations[need]) {
-            products.push(...productRecommendations[need]);
-        }
-    });
-
-    const todayTask = [...new Set(dailyTasks)][0] || "Refresh and check in with your curls today.";
-    const weeklyTask = [...new Set(weeklyTasks)][0] || "Keep your routine consistent this week.";
-    const uniqueProducts = [...new Set(products)].slice(0, 3);
-
+    const concerns = Array.isArray(answers[5])
+        ? answers[5]
+        : [answers[5]]; 
+    
     return (
         <ScrollView
-            style={styles.ScrollView}
+            style={styles.scrollView}
             contentContainerStyle={styles.container}
             showsVerticalScrollIndicator={false}
-        >
-        <Text style={styles.greeting}>Hi, {name} !</Text>
-        <Text style={styles.taskTitle}>
-        Here's what your curls need today.
+    >
+        <View style={styles.avatar}>
+            <Text style = {styles.avatarText}>
+                {name.charAt(0).toUpperCase()}
+            </Text>
+        </View>
+
+        <View style={styles.card}>
+
+        <Text styles= {styles.cardTitle}>Hair Details</Text>
+
+        <Text style={styles.item}>
+            • Curl Pattern: {answers[1] || "Not specified"}
         </Text>
 
-        <View style={styles.heroCard}>
-            <Text style={styles.cardLabel}>Today's Curl Task</Text>
-            <Text style={styles.heroText}>{todayTask}</Text>
-        </View>
+        <Text style={styles.item}>
+            • Hair Porosity: {answers[2] || "Not specified"}
+        </Text>
 
-        <View style={styles.card}>
-            <Text style={styles.cardTitle}>Your hair profile</Text>
-            <Text style={styles.item}>• Curl Pattern: {answers[1] || "Not Set"}</Text>
-            <Text style={styles.item}>• Porosity: {answers[2] || "Not Set"}</Text>
-            <Text style={styles.item}>• Density: {answers[3] || "Not Set"}</Text>
-            <Text style={styles.item}>• Scalp: {answers[8] || "Not Set"}</Text>
-        </View>
+        <Text style={styles.item}>
+            • Hair Density: {answers[3] || "Not specified"}
+        </Text>
 
-        <View style={styles.card}>
-            <Text style={styles.cardTitle}>Suggested Product Types</Text>
+        <Text style={styles.item}>
+            • Hair Thickness: {answers[4] || "Not specified"}
+        </Text>
 
-            {uniqueProducts.length > 0 ? (
-                uniqueProducts.map((product) => (
-                    <Text key={product} style={styles.item}>
-                        • {product}
-                    </Text>
-                ))
-            ) : (
-                <Text style={styles.item}>No product suggestion yet.</Text>
-            )}
-        </View>
+        <Text style={styles.item}>
+            • Scalp Type: {answers[8] || "Not specified"}
+        </Text>
+    </View>
 
-        <TouchableOpacity 
-            style={styles.secondarybutton}
-            onPress={() => router.push("/quiz")}
-        >
-            <Text style={styles.secondaryButtonText}>Update My Hair Profile</Text>
-        </TouchableOpacity>
-        </ScrollView>
+    <View styles={styles.card}>
+        <Text style={styles.cardTitle}>Your Hair Goals</Text>
+        {goals.map((goal) => (
+            <Text key={goal} style={styles.item}>
+                • {goal}
+            </Text>
+        ))}
+    </View>
+
+    <TouchableOpacity
+        style={styles.primaryButton}
+        onPress={() => router.push("/quiz")}
+    >
+        <Text style={styles.primaryButtonText}>
+            Update My Hair Profile
+        </Text>
+    </TouchableOpacity>
+
+    <TouchableOpacity
+        style={styles.secondaryButton}
+        onPress={async () => {
+            await AsyncStorage.removeItem("quizAnswers");
+            router.replace("/");
+        }}
+    >
+        <Text style={styles.secondaryButtonText}>
+            Reset Quiz Answers
+        </Text>
+    </TouchableOpacity>
+    </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
     scrollView: {
         flex: 1,
-        backgroundColor: "white",
+        backgroundColor: "#F7F1E8",
     },
-
+    
     container: {
+        paddingTop: 80,
         paddingHorizontal: 24,
-        paddingTop: 80, 
-        paddingBottom: 30,
+        paddingBottom: 50,
+        alignItems: "center",
     },
 
-    greeting: {
-        fontSize: 38,
+    avatar: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        backgroundColor: "#111",
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: 20,
+    },
+
+    avatarText: {
+        color: "#fff",
+        fontSize: 40,
+        fontWeight: "700",
+    },
+
+    name: {
+        fontSize: 35,
         fontWeight: "800",
-        marginBottom: 8,
         color: "#111",
     },
 
     subtitle: {
         fontSize: 16,
-        color: "#555",
-        marginBottom: 28,
-    },
-
-    heroCard: {
-        backgroundColor: "#111",
-        borderRadius: 30,
-        marginTop: 20,
-        padding: 22,
-        marginBottom: 18,
-    },
-
-    cardLabel: {
-        fontSize: 14,
-        color: "#F7F1E8",
-        marginBottom: 12,
-    },
-
-    heroText: {
-        fontSize: 24,
-        color: "#fff",
-        lineHeight: 30,
-        fontWeight: "700",
+        color: "#666",
+        marginBottom: 30, 
+        marginTop: 8,
     },
 
     card: {
+        width: "100%",
         backgroundColor: "#FFF9F0",
-        borderRadius: 26,
+        borderRadius: 28,
         padding: 22,
         marginBottom: 18,
     },
 
     cardTitle: {
-        fontSize: 20,
+        fontSize: 22,
         fontWeight: "700",
-        marginBottom: 12,
+        marginBottom: 14,
         color: "#111",
     },
 
     item: {
         fontSize: 16,
         color: "#333",
-        marginBottom: 6,
+        marginBottom: 8,
         lineHeight: 24,
     },
 
     primaryButton: {
         backgroundColor: "#111",
-        paddingVertical: 18,
+        paddingVertical: 16,
         borderRadius: 999,
         alignItems: "center",
+        width: "100%",
         marginTop: 12,
     },
 
@@ -191,13 +186,13 @@ const styles = StyleSheet.create({
     },
 
     secondaryButton: {
-        paddingVertical: 18,
-        alignItems: "center",
+        marginTop: 18,
     },
 
-    secondaryButtonText:{
-      color: "#444",
-      fontSize: 16,
-      fontWeight: "600",  
+    secondaryButtonText: {
+        color: "#666",
+        fontSize: 16,
+        fontWeight: "600",
     },
+
 });
