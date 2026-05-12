@@ -10,9 +10,9 @@ export const questions = [
         id: 1, 
         question: "What best describes your curl pattern?", 
         options: [
-            "Wavy",
-            "Curly",
-            "Coily"
+            "Wavy (2a, 2b, 2c)",
+            "Curly (3a, 3b, 3c)",
+            "Coily (4a, 4b, 4c)"
         ]
     },
     {

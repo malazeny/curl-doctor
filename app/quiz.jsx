@@ -35,38 +35,58 @@ useEffect(() => {
 }, [progress]);
 
   const handleAnswer = (option) => {
-    if (currentQuestion.multiSelect) {
-      const currentAnswers = currentAnswer || [];
+    const updatedAnswers = {
+        ...answers, 
+        [currentQuestion.id]: option, 
+    };
 
-      const updatedAnswers = currentAnswers.includes(option)
+    if (currentQuestion.multiSelect) {
+        const currentAnswers = currentAnswer || [];
+
+        const updatedMultiAnswers = currentAnswers.includes(option)
         ? currentAnswers.filter((item) => item !== option)
         : [...currentAnswers, option];
 
-      setAnswers({
-        ...answers,
-        [currentQuestion.id]: updatedAnswers,
-      });
+        setAnswers({
+            ...answers,
+            [currentQuestion.id]: updatedMultiAnswers,
+        });
 
-      return;
+        return;
     }
 
-    setAnswers({
-      ...answers,
-      [currentQuestion.id]: option,
-    });
+    setAnswers(updatedAnswers);
 
-    handleContinue();
-  };
+    if (currentQuestionIndex < questions.length - 1) {
+        setCurrentQuestionIndex(currentQuestionIndex + 1);
+    } else {
+        router.push({
+            pathname: "/results",
+            params: {
+                answers: JSON.stringify(updatedAnswers),
+            },
+        });
+    }
+  }
 
   const handleContinue = () => {
     if (currentQuestion.type === "text" && !currentAnswer?.trim()) {
       return;
     }
 
+   if (currentQuestion.multiSelect && (!currentAnswer || currentAnswer.length === 0)) {
+        return;
+    }
+
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      router.push("/results");
+      router.push({
+        pathname: "/results",
+        params: {
+          answers: JSON.stringify(answers),
+        },
+      });
     }
   };
 
