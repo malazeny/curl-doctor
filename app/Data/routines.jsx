@@ -40,4 +40,32 @@ export const routineRules = {
       monthly: ["Use a scalp treatment if needed."],
       everyThreeMonths: ["Reassess scalp dryness, oiliness, or sensitivity."],
     },
+
+    "Frizz Control": {
+  daily: ["Sleep with a satin bonnet or pillowcase."],
+  weekly: ["Use curl cream or gel for definition."],
+  monthly: ["Clarify buildup from styling products."],
+  everyThreeMonths: ["Reassess if products are too drying."],
+},
+
+"Damage Repair": {
+  daily: ["Handle hair gently and avoid tight styles."],
+  weekly: ["Use a strengthening deep conditioner."],
+  monthly: ["Use a protein treatment if needed."],
+  everyThreeMonths: ["Trim damaged or split ends."],
+},
+
+"Moisture & Hydration": {
+  daily: ["Refresh curls with water or leave-in conditioner."],
+  weekly: ["Deep condition once a week."],
+  monthly: ["Clarify and follow with moisture."],
+  everyThreeMonths: ["Check ends for dryness."],
+},
+
+"Enhanced Definition": {
+  daily: ["Refresh curls by misting and scrunching."],
+  weekly: ["Style on damp hair with curl cream or gel."],
+  monthly: ["Clarify buildup that may weigh curls down."],
+  everyThreeMonths: ["Review your styling routine."],
+},
   };

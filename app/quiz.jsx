@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from "react"; 
+import React, { useState, useRef, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import {
   View,
@@ -19,98 +20,98 @@ export default function Quiz() {
   const currentQuestion = questions[currentQuestionIndex];
   const currentAnswer = answers[currentQuestion.id];
 
-  const progress = 
+  const progress =
     ((currentQuestionIndex + 1) / questions.length) * 100;
 
-  const progressAnim = useRef
-  (new Animated.Value(0)
-).current;
+  const progressAnim = useRef(new Animated.Value(0)).current;
 
-useEffect(() => {
+  useEffect(() => {
     Animated.timing(progressAnim, {
-        toValue: progress,
-        duration: 300,
-        useNativeDriver: false,
+      toValue: progress,
+      duration: 300,
+      useNativeDriver: false,
     }).start();
-}, [progress]);
+  }, [progress]);
+
+  const goToResults = async (latestAnswers) => {
+    await AsyncStorage.setItem(
+      "quizAnswers",
+      JSON.stringify(latestAnswers)
+    );
+  
+    router.push("/results");
+  };
 
   const handleAnswer = (option) => {
-    const updatedAnswers = {
-        ...answers, 
-        [currentQuestion.id]: option, 
-    };
-
     if (currentQuestion.multiSelect) {
-        const currentAnswers = currentAnswer || [];
+      const currentAnswers = currentAnswer || [];
 
-        const updatedMultiAnswers = currentAnswers.includes(option)
+      const updatedMultiAnswers = currentAnswers.includes(option)
         ? currentAnswers.filter((item) => item !== option)
         : [...currentAnswers, option];
 
-        setAnswers({
-            ...answers,
-            [currentQuestion.id]: updatedMultiAnswers,
-        });
+      setAnswers({
+        ...answers,
+        [currentQuestion.id]: updatedMultiAnswers,
+      });
 
-        return;
+      return;
     }
+
+    const updatedAnswers = {
+      ...answers,
+      [currentQuestion.id]: option,
+    };
 
     setAnswers(updatedAnswers);
 
     if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-        router.push({
-            pathname: "/results",
-            params: {
-                answers: JSON.stringify(updatedAnswers),
-            },
-        });
+      goToResults(updatedAnswers);
     }
-  }
+  };
 
   const handleContinue = () => {
     if (currentQuestion.type === "text" && !currentAnswer?.trim()) {
       return;
     }
 
-   if (currentQuestion.multiSelect && (!currentAnswer || currentAnswer.length === 0)) {
-        return;
+    if (
+      currentQuestion.multiSelect &&
+      (!currentAnswer || currentAnswer.length === 0)
+    ) {
+      return;
     }
 
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      router.push({
-        pathname: "/results",
-        params: {
-          answers: JSON.stringify(answers),
-        },
-      });
+      goToResults(answers);
     }
   };
 
   return (
     <View style={styles.container}>
-    <View style = {styles.progressContainer}>
+      <View style={styles.progressContainer}>
         <Animated.View
-            style ={[
-                styles.progressFill,
-                {
-                    width: progressAnim.interpolate({
-                        inputRange: [0, 100],
-                        outputRange: ['0%', '100%'],
-                    }),
-                },
-              ]}
-            />
-        </View>
+          style={[
+            styles.progressFill,
+            {
+              width: progressAnim.interpolate({
+                inputRange: [0, 100],
+                outputRange: ["0%", "100%"],
+              }),
+            },
+          ]}
+        />
+      </View>
 
-    <Text style={styles.progressText}>
+      <Text style={styles.progressText}>
         Question {currentQuestionIndex + 1} of {questions.length}
-    </Text>
+      </Text>
 
-    <Text style={styles.question}>{currentQuestion.question}</Text>
+      <Text style={styles.question}>{currentQuestion.question}</Text>
 
       {currentQuestion.type === "text" ? (
         <>
@@ -210,7 +211,7 @@ const styles = StyleSheet.create({
     height: 6,
     backgroundColor: "#DDD6CC",
     borderRadius: 999,
-    marginBottom: 16, 
+    marginBottom: 16,
     overflow: "hidden",
   },
 
@@ -222,15 +223,9 @@ const styles = StyleSheet.create({
 
   progressText: {
     fontSize: 14,
-    color: "#666", 
+    color: "#666",
     marginBottom: 40,
   },
-
-//   progress: {
-//     fontSize: 16,
-//     color: "#555",
-//     marginBottom: 40,
-//   },
 
   question: {
     fontSize: 32,

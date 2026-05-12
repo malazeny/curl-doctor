@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import {
     View, 
@@ -8,23 +9,41 @@ import {
     ScrollView,
 } from 'react-native';
 
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import { routineRules } from './Data/routines';
 import { productRecommendations } from './Data/products';
 
 export default function Results() {
-    const { answers } = useLocalSearchParams();
 
-    const rawAnswers = Array.isArray(answers) ? answers[0] : answers;
-    const parsedAnswers = rawAnswers ? JSON.parse(rawAnswers) : {};
-    console.log(parsedAnswers);   
+const [parsedAnswers, setParsedAnswers] = useState({});
 
+// console.log("PARSED ANSWERS:", parsedAnswers);
+// console.log("CONCERN:", parsedAnswers[5]);
+// console.log("GOALS:", parsedAnswers[10]);
+
+useEffect(() => {
+  const loadAnswers = async () => {
+    const savedAnswers = await AsyncStorage.getItem("quizAnswers");
+
+    if (savedAnswers) {
+      setParsedAnswers(JSON.parse(savedAnswers));
+    }
+  };
+
+  loadAnswers();
+}, []);
 
     const name = parsedAnswers.name || "There";
-    const biggestConcern = parsedAnswers[5];
-    const goals = parsedAnswers[10] || [];
-
-    const selectNeeds = [biggestConcern, ...goals]. filter(Boolean);
+    const biggestConcern = Array.isArray(parsedAnswers[5])
+        ? parsedAnswers[5]
+        : [parsedAnswers[5]];
+    const goals = Array.isArray(parsedAnswers[10])
+        ? parsedAnswers[10]
+        : [parsedAnswers[10]];
+    const selectedNeeds = [
+            ...biggestConcern,
+            ...goals,
+          ].filter(Boolean);
 
     const Routine = {
         daily : [],
@@ -35,7 +54,7 @@ export default function Results() {
 
     const Products = [];
 
-    selectNeeds.forEach((need) => {
+    selectedNeeds.forEach((need) => {
         const rules = routineRules[need];
         if (rules) {
             Routine.daily.push(...rules.daily);
