@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react"; 
 
 import {
   View,
@@ -6,6 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Animated,
 } from "react-native";
 
 import { router } from "expo-router";
@@ -17,8 +18,21 @@ export default function Quiz() {
 
   const currentQuestion = questions[currentQuestionIndex];
   const currentAnswer = answers[currentQuestion.id];
+
   const progress = 
     ((currentQuestionIndex + 1) / questions.length) * 100;
+
+  const progressAnim = useRef
+  (new Animated.Value(0)
+).current;
+
+useEffect(() => {
+    Animated.timing(progressAnim, {
+        toValue: progress,
+        duration: 300,
+        useNativeDriver: false,
+    }).start();
+}, [progress]);
 
   const handleAnswer = (option) => {
     if (currentQuestion.multiSelect) {
@@ -58,14 +72,19 @@ export default function Quiz() {
 
   return (
     <View style={styles.container}>
-      <View style ={styles.progressContainer}>
-        <View
-            style={[
+    <View style = {styles.progressContainer}>
+        <Animated.View
+            style ={[
                 styles.progressFill,
-                { width: `${progress}%` },
-            ]}
-        />
-    </View>
+                {
+                    width: progressAnim.interpolate({
+                        inputRange: [0, 100],
+                        outputRange: ['0%', '100%'],
+                    }),
+                },
+              ]}
+            />
+        </View>
 
     <Text style={styles.progressText}>
         Question {currentQuestionIndex + 1} of {questions.length}
@@ -187,11 +206,11 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
 
-  progress: {
-    fontSize: 16,
-    color: "#555",
-    marginBottom: 40,
-  },
+//   progress: {
+//     fontSize: 16,
+//     color: "#555",
+//     marginBottom: 40,
+//   },
 
   question: {
     fontSize: 32,
