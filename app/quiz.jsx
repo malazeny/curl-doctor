@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import {
   View,
   Text,
+  TextInput,
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
@@ -15,10 +16,11 @@ export default function Quiz() {
   const [answers, setAnswers] = useState({});
 
   const currentQuestion = questions[currentQuestionIndex];
+  const currentAnswer = answers[currentQuestion.id];
 
   const handleAnswer = (option) => {
     if (currentQuestion.multiSelect) {
-      const currentAnswers = answers[currentQuestion.id] || [];
+      const currentAnswers = currentAnswer || [];
 
       const updatedAnswers = currentAnswers.includes(option)
         ? currentAnswers.filter((item) => item !== option)
@@ -37,14 +39,14 @@ export default function Quiz() {
       [currentQuestion.id]: option,
     });
 
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    } else {
-      router.push("/results");
-    }
+    handleContinue();
   };
 
   const handleContinue = () => {
+    if (currentQuestion.type === "text" && !currentAnswer?.trim()) {
+      return;
+    }
+
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
@@ -60,46 +62,83 @@ export default function Quiz() {
 
       <Text style={styles.question}>{currentQuestion.question}</Text>
 
-      <View style={styles.optionsContainer}>
-        {currentQuestion.options.map((option) => {
-          const isSelected = currentQuestion.multiSelect
-            ? answers[currentQuestion.id]?.includes(option)
-            : answers[currentQuestion.id] === option;
+      {currentQuestion.type === "text" ? (
+        <>
+          <TextInput
+            style={styles.input}
+            placeholder={currentQuestion.placeholder}
+            placeholderTextColor="#B8B8B8"
+            value={currentAnswer || ""}
+            onChangeText={(text) =>
+              setAnswers({
+                ...answers,
+                [currentQuestion.id]: text,
+              })
+            }
+            autoFocus
+          />
 
-          return (
+          <Text style={styles.helperText}>
+            {currentQuestion.helperText}
+          </Text>
+
+          <TouchableOpacity
+            style={[
+              styles.nextButton,
+              !currentAnswer?.trim() && styles.buttonDisabled,
+            ]}
+            onPress={handleContinue}
+            disabled={!currentAnswer?.trim()}
+          >
+            <Text style={styles.nextButtonText}>›</Text>
+          </TouchableOpacity>
+        </>
+      ) : (
+        <>
+          <View style={styles.optionsContainer}>
+            {currentQuestion.options.map((option) => {
+              const isSelected = currentQuestion.multiSelect
+                ? currentAnswer?.includes(option)
+                : currentAnswer === option;
+
+              return (
+                <TouchableOpacity
+                  key={option}
+                  style={[
+                    styles.optionButton,
+                    isSelected && styles.selectedOption,
+                  ]}
+                  onPress={() => handleAnswer(option)}
+                >
+                  <Text
+                    style={[
+                      styles.optionText,
+                      isSelected && styles.selectedOptionText,
+                    ]}
+                  >
+                    {option}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {currentQuestion.multiSelect && (
             <TouchableOpacity
-              key={option}
-              style={[
-                styles.optionButton,
-                isSelected && styles.selectedOption,
-              ]}
-              onPress={() => handleAnswer(option)}
+              style={styles.primaryButton}
+              onPress={handleContinue}
             >
-              <Text
-                style={[
-                  styles.optionText,
-                  isSelected && styles.selectedOptionText,
-                ]}
-              >
-                {option}
-              </Text>
+              <Text style={styles.primaryButtonText}>Continue</Text>
             </TouchableOpacity>
-          );
-        })}
-      </View>
-
-      {currentQuestion.multiSelect && (
-        <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={handleContinue}
-        >
-          <Text style={styles.primaryButtonText}>Continue</Text>
-        </TouchableOpacity>
+          )}
+        </>
       )}
 
       {currentQuestionIndex > 0 && (
         <TouchableOpacity
-          onPress={() => setCurrentQuestionIndex(currentQuestionIndex - 1)}
+          onPress={() =>
+            setCurrentQuestionIndex(currentQuestionIndex - 1)
+          }
         >
           <Text style={styles.backText}>‹ Back</Text>
         </TouchableOpacity>
@@ -128,6 +167,44 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     color: "#111",
     lineHeight: 40,
+  },
+
+  input: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#111",
+    borderBottomWidth: 1.5,
+    borderBottomColor: "#111",
+    paddingBottom: 10,
+    marginBottom: 16,
+  },
+
+  helperText: {
+    fontSize: 13,
+    color: "#777",
+    lineHeight: 18,
+    marginBottom: 32,
+  },
+
+  nextButton: {
+    backgroundColor: "#111",
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "flex-end",
+    marginTop: 10,
+  },
+
+  nextButtonText: {
+    color: "#fff",
+    fontSize: 34,
+    marginTop: -4,
+  },
+
+  buttonDisabled: {
+    opacity: 0.35,
   },
 
   optionsContainer: {
@@ -175,7 +252,7 @@ const styles = StyleSheet.create({
   backText: {
     fontSize: 16,
     color: "#444",
-    marginTop: 20,
+    marginTop: 24,
     textAlign: "center",
   },
 });

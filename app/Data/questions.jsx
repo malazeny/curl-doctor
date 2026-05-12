@@ -1,5 +1,12 @@
 export const questions = [
     {
+        id: "name", 
+        type: "text", 
+        question: "What should we call you?",
+        placeholder: "First name", 
+        helperText: "This helps personalize your Curl Doctor experience."
+    },
+    {
         id: 1, 
         question: "What best describes your curl pattern?", 
         options: [
@@ -38,6 +45,7 @@ export const questions = [
     {
         id: 5,
         question: "What is your biggest hair concern?",
+        multiSelect: true,
         options: [
             "Dryness",
             "Frizz",
