@@ -10,8 +10,8 @@ import {
 } from "react-native";
 
 import { router } from "expo-router";
-import { routineRules } from "./Data/routines";
-import { productRecommendations } from "./Data/products";
+import { routineRules } from "../Data/routines";
+import { productRecommendations } from "../Data/products";
 
 export default function Dashboard() {
     const [answers, setAnswers] = useState({});

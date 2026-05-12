@@ -10,8 +10,8 @@ import {
 } from 'react-native';
 
 import { router } from 'expo-router';
-import { routineRules } from './Data/routines';
-import { productRecommendations } from './Data/products';
+import { routineRules } from '../Data/routines';
+import { productRecommendations } from '../Data/products';
 
 export default function Results() {
 
@@ -77,11 +77,11 @@ useEffect(() => {
         showsVerticalScrollIndicator={false}
         >
     
-            <Text style={styles.title}>Hi, {name} !</Text>
+            <Text style={styles.title}> Here is your curl prescription!</Text>
 
-            <Text style={styles.subtitle}>
+            {/* <Text style={styles.subtitle}>
                 Here is your curl prescription
-            </Text>
+            </Text> */}
 
             <RoutineSection title="Daily Routine" items={Routine.daily} />
             <RoutineSection title="Weekly Routine" items={Routine.weekly} />
@@ -96,12 +96,12 @@ useEffect(() => {
                 </Text>
             ))}
 
-                <TouchableOpacity
+                {/* <TouchableOpacity
                     style={styles.button}
-                    onPress={() => router.push("/dashboard")}
+                    onPress={() => router.push("/(tabs)/dashboard")}
                 >
                     <Text style={styles.buttonText}>Go to Dashboard</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
         </ScrollView>
     );
 }
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     },
 
     title: {
-        fontSize: 36,
+        fontSize: 25,
         fontWeight: "700",
         marginBottom: 10,
         color: "#111",
