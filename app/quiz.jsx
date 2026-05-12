@@ -17,6 +17,8 @@ export default function Quiz() {
 
   const currentQuestion = questions[currentQuestionIndex];
   const currentAnswer = answers[currentQuestion.id];
+  const progress = 
+    ((currentQuestionIndex + 1) / questions.length) * 100;
 
   const handleAnswer = (option) => {
     if (currentQuestion.multiSelect) {
@@ -56,11 +58,20 @@ export default function Quiz() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.progress}>
-        Question {currentQuestionIndex + 1} of {questions.length}
-      </Text>
+      <View style ={styles.progressContainer}>
+        <View
+            style={[
+                styles.progressFill,
+                { width: `${progress}%` },
+            ]}
+        />
+    </View>
 
-      <Text style={styles.question}>{currentQuestion.question}</Text>
+    <Text style={styles.progressText}>
+        Question {currentQuestionIndex + 1} of {questions.length}
+    </Text>
+
+    <Text style={styles.question}>{currentQuestion.question}</Text>
 
       {currentQuestion.type === "text" ? (
         <>
@@ -153,6 +164,27 @@ const styles = StyleSheet.create({
     backgroundColor: "#F7F1E8",
     paddingHorizontal: 24,
     paddingTop: 90,
+  },
+
+  progressContainer: {
+    width: "100%",
+    height: 6,
+    backgroundColor: "#DDD6CC",
+    borderRadius: 999,
+    marginBottom: 16, 
+    overflow: "hidden",
+  },
+
+  progressFill: {
+    height: "100%",
+    backgroundColor: "#111",
+    borderRadius: 999,
+  },
+
+  progressText: {
+    fontSize: 14,
+    color: "#666", 
+    marginBottom: 40,
   },
 
   progress: {
