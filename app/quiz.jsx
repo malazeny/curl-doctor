@@ -39,7 +39,7 @@ export default function Quiz() {
       JSON.stringify(latestAnswers)
     );
   
-    router.push("/results");
+    router.push("/generating");
   };
 
   const handleAnswer = (option) => {

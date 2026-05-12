@@ -152,9 +152,11 @@ const styles = StyleSheet.create({
 
     card: {
         backgroundColor: "#FFF9F0",
-        borderRadius: 24,
-        padding: 20,
+        borderRadius: 28,
+        padding: 22,
         marginBottom: 18,
+        borderWidth: 1,
+        borderColor: "#EFE2D1",
     },
 
     sectionTitle: {
