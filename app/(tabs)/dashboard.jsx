@@ -15,17 +15,22 @@ import { productRecommendations } from "../Data/products";
 
 export default function Dashboard() {
     const [answers, setAnswers] = useState({});
+    const [completedTasks, setCompletedTasks] = useState([]);   
 
     useEffect (() => {
         const loadAnswers = async () => {
             const savedAnswers = await AsyncStorage.getItem("quizAnswers");
-
             if (savedAnswers) {
                 setAnswers(JSON.parse(savedAnswers));
             }
-        };
 
+            const savedTasks = await AsyncStorage.getItem("completedTasks");
+            if (savedTasks) {
+                setCompletedTasks(JSON.parse(savedTasks));
+            }
+        };
         loadAnswers();
+
     }, []);
 
     const name = answers.name || "there";  
@@ -61,6 +66,19 @@ export default function Dashboard() {
     const weeklyTask = [...new Set(weeklyTasks)][0] || "Keep your routine consistent this week.";
     const uniqueProducts = [...new Set(products)].slice(0, 3);
 
+    const toggleTask = async (task) => {
+        const updatedTasks = completedTasks.includes(task)
+        ? completedTasks.filter((item) => item !== task)
+        : [...completedTasks, task];
+
+        setCompletedTasks(updatedTasks);
+
+        await AsyncStorage.setItem(
+            "completedTasks", 
+            JSON.stringify(updatedTasks
+
+            ));
+    }
     return (
         <ScrollView
             style={styles.ScrollView}
@@ -73,10 +91,33 @@ export default function Dashboard() {
         </Text>
 
         <View style={styles.heroCard}>
-            <Text style={styles.cardLabel}>Today's Curl Task</Text>
-            <Text style={styles.heroText}>{todayTask}</Text>
-        </View>
+            <Text style={styles.cardLabel}>Today's Curl Checklist</Text>
 
+            {[...new Set(dailyTasks)].slice(0, 3).map((task) => {
+                const isCompleted = completedTasks.includes(task);
+
+                return(
+                    <TouchableOpacity
+                        key = {task}
+                        style= {styles.checklistRow}
+                        onPress = {() => toggleTask(task)}
+                        >
+                        <Text style={styles.checkbox}>
+                            {isCompleted ? "✓" : ""}
+                        </Text>
+
+                        <Text
+                            style={[
+                                styles.heroText,
+                                isCompleted && styles.completedTask,
+                            ]}
+                        >
+                            {task}
+                        </Text>
+                    </TouchableOpacity>
+                );
+            })}
+        </View>
         <View style={styles.card}>
             <Text style={styles.cardTitle}>Your hair profile</Text>
             <Text style={styles.item}>• Curl Pattern: {answers[1] || "Not Set"}</Text>
@@ -149,7 +190,7 @@ const styles = StyleSheet.create({
     },
 
     heroText: {
-        fontSize: 24,
+        fontSize: 20,
         color: "#fff",
         lineHeight: 30,
         fontWeight: "700",
@@ -167,6 +208,30 @@ const styles = StyleSheet.create({
         fontWeight: "700",
         marginBottom: 12,
         color: "#111",
+    },
+
+    checklistRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 16,
+    },
+
+    checkbox: {
+        width: 28, 
+        height: 28,
+        borderRadius: 14,
+        borderWidth: 1.5,
+        borderColor: "#F7F1E8",
+        color: "#F7F1E8",
+        textAlign: "center",
+        lineHeight: 25, 
+        marginRight: 12,
+        fontWeight: "700",
+    },
+
+    completedTask: {
+        textDecorationLine: "line-through",
+        opacity: 0.6,
     },
 
     item: {
