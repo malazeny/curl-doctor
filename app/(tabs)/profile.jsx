@@ -50,7 +50,7 @@ export default function Profile() {
 
         <View style={styles.card}>
 
-        <Text styles= {styles.cardTitle}>Hair Details</Text>
+        <Text style= {styles.cardTitle}>Hair Details</Text>
 
         <Text style={styles.item}>
             • Curl Pattern: {answers[1] || "Not specified"}
@@ -73,9 +73,9 @@ export default function Profile() {
         </Text>
     </View>
 
-    <View styles={styles.card}>
+    <View style={styles.card}>
         <Text style={styles.cardTitle}>Your Hair Goals</Text>
-        {goals.map((goal) => (
+        {[...new Set(goals)].filter(Boolean).map((goal) => (
             <Text key={goal} style={styles.item}>
                 • {goal}
             </Text>
@@ -84,7 +84,7 @@ export default function Profile() {
 
     <TouchableOpacity
         style={styles.primaryButton}
-        onPress={() => router.push("/quiz")}
+        onPress={() => router.push("/edit-profile")}
     >
         <Text style={styles.primaryButtonText}>
             Update My Hair Profile
