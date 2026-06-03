@@ -10,8 +10,7 @@ import {
 } from 'react-native';
 
 import { router } from 'expo-router';
-import { routineRules } from '../Data/routines';
-import { productRecommendations } from '../Data/products';
+import { generateRoutine } from "../Data/generateRoutine";
 
 export default function Results() {
 
@@ -34,42 +33,10 @@ useEffect(() => {
 }, []);
 
     const name = parsedAnswers.name || "There";
-    const biggestConcern = Array.isArray(parsedAnswers[5])
-        ? parsedAnswers[5]
-        : [parsedAnswers[5]];
-    const goals = Array.isArray(parsedAnswers[10])
-        ? parsedAnswers[10]
-        : [parsedAnswers[10]];
-    const selectedNeeds = [
-            ...biggestConcern,
-            ...goals,
-          ].filter(Boolean);
 
-    const Routine = {
-        daily : [],
-        weekly : [],
-        monthly : [],
-        everyThreeMonths : [],
-    };
-
-    const Products = [];
-
-    selectedNeeds.forEach((need) => {
-        const rules = routineRules[need];
-        if (rules) {
-            Routine.daily.push(...rules.daily);
-            Routine.weekly.push(...rules.weekly);
-            Routine.monthly.push(...rules.monthly);
-            Routine.everyThreeMonths.push(...rules.everyThreeMonths);
-        }
-
-       if (productRecommendations[need]) {
-            Products.push(...productRecommendations[need]);
-       }
-    });
-
-    const uniqueProducts = [...new Set(Products)];  
-
+    const routine = generateRoutine(parsedAnswers);
+    const uniqueProducts = routine.products;
+    
     return (
         <ScrollView 
         style ={styles.scrollView}
@@ -83,10 +50,10 @@ useEffect(() => {
                 Here is your curl prescription
             </Text> */}
 
-            <RoutineSection title="Daily Routine" items={Routine.daily} />
-            <RoutineSection title="Weekly Routine" items={Routine.weekly} />
-            <RoutineSection title="Monthly Routine" items={Routine.monthly} />
-            <RoutineSection title="Every 3 Months" items={Routine.everyThreeMonths} />
+            <RoutineSection title="Daily Routine" items={routine.daily} />
+            <RoutineSection title="Weekly Routine" items={routine.weekly} />
+            <RoutineSection title="Monthly Routine" items={routine.monthly} />
+            <RoutineSection title="Every 3 Months" items={routine.everyThreeMonths} />
 
             <Text style={styles.sectionTitle}>Types of products to look for</Text>
 
