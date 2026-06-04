@@ -67,6 +67,25 @@ if (colorTreated === "Yes") {
     routine.products.push("Color-safe shampoo");
 }
 
+if (
+    concerns.includes("Dryness") &&
+    porosity === "High Porosity"
+  ) {
+    routine.weekly.push(
+      "Use heavier creams and seal moisture with oil."
+    );
+  }
+
+  if (
+    concerns.includes("Frizz") &&
+    scalp === "Dry"
+  ) {
+    routine.weekly.push(
+      "Focus on moisture before adding stronger hold products."
+    );
+  }
+
+
 return {
     daily: [...new Set(routine.daily)],
     weekly: [...new Set(routine.weekly)],

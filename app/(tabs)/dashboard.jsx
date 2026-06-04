@@ -19,6 +19,10 @@ export default function Dashboard() {
 
     useEffect (() => {
         const loadAnswers = async () => {
+        const savedCheckIns = await AsyncStorage.getItem("weeklyCheckIns");
+            if (savedCheckIns) {
+            setCheckIns(JSON.parse(savedCheckIns));
+            }
             const savedAnswers = await AsyncStorage.getItem("quizAnswers");
             if (savedAnswers) {
                 setAnswers(JSON.parse(savedAnswers));
@@ -34,6 +38,8 @@ export default function Dashboard() {
     }, []);
 
     const name = answers.name || "there";  
+    const [checkIns, setCheckIns] = useState([]);
+    const latestCheckIn = checkIns[0];
     
     const concerns = Array.isArray(answers[5])
         ? answers[5] 
@@ -118,6 +124,42 @@ export default function Dashboard() {
                 );
             })}
         </View>
+
+        <View style={styles.card}>
+        <Text style={styles.cardTitle}>Weekly Check-In</Text>
+        <Text style={styles.item}>
+            Tell Curl Doctor how your hair is doing this week.
+        </Text>
+
+        <TouchableOpacity
+            style={styles.primaryButton}
+            onPress={() => router.push("/check-in")}
+        >
+            <Text style={styles.primaryButtonText}>Start Check-In</Text>
+        </TouchableOpacity>
+    </View>
+
+    <View style={styles.card}>
+    <Text style={styles.cardTitle}>Latest Progress</Text>
+
+    {latestCheckIn ? (
+        <>
+      <Text style={styles.item}>
+        • Hair felt: {latestCheckIn.answers.hairFeeling}
+      </Text>
+      <Text style={styles.item}>
+        • Scalp felt: {latestCheckIn.answers.scalpFeeling}
+      </Text>
+      <Text style={styles.item}>
+        • Routine: {latestCheckIn.answers.routineConsistency}
+      </Text>
+    </>
+    ) : (
+    <Text style={styles.item}>
+      No weekly check-ins yet.
+    </Text>
+    )}
+    </View>
         <View style={styles.card}>
             <Text style={styles.cardTitle}>Your hair profile</Text>
             <Text style={styles.item}>• Curl Pattern: {answers[1] || "Not Set"}</Text>

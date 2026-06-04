@@ -34,4 +34,9 @@ export const productRecommendations = {
       "Scalp serum",
       "Scalp massager",
     ],
+    Shrinkage: [
+      "Stretching cream",
+      "Curl elongating cream",
+      "Hair bands",
+    ],
   };
