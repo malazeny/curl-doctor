@@ -32,6 +32,12 @@ export default function Dashboard() {
             if (savedTasks) {
                 setCompletedTasks(JSON.parse(savedTasks));
             }
+            const savedStreak = await AsyncStorage.getItem("streakData");
+            if (savedStreak) {
+                const { count, days } = JSON.parse(savedStreak);
+                setStreak(count || 0);
+                setStreakDays(days || [false,false,false,false,false,false,false]);
+            }
         };
         loadAnswers();
 
@@ -40,6 +46,8 @@ export default function Dashboard() {
     const name = answers.name || "there";  
     const [checkIns, setCheckIns] = useState([]);
     const latestCheckIn = checkIns[0];
+    const [streak, setStreak] = useState(0);
+    const [streakDays, setStreakDays] = useState([false,false,false,false,false,false,false]);
     
     const concerns = Array.isArray(answers[5])
         ? answers[5] 
@@ -48,6 +56,17 @@ export default function Dashboard() {
     const goals = Array.isArray(answers[10])
         ? answers[10] 
         : [answers[10]];
+
+    const curlTips = [
+        "Tip: Scrunch out the crunch after your gel fully dries.",
+        "Tip: Refresh with water + leave-in before styling today.",
+        "Tip: Pineapple your hair tonight to preserve your curls.",
+        "Tip: Deep condition once a week for maximum moisture.",
+        "Tip: Use a microfiber towel — regular towels cause frizz.",
+        "Tip: Apply products to soaking wet hair for better definition.",
+        "Tip: Low manipulation = less breakage. Let your curls rest.",
+    ];
+    const dailyTip = curlTips[new Date().getDay()];
     
     const selectedNeeds = [...concerns, ...goals].filter(Boolean);
 
@@ -74,30 +93,88 @@ export default function Dashboard() {
 
     const toggleTask = async (task) => {
         const updatedTasks = completedTasks.includes(task)
-        ? completedTasks.filter((item) => item !== task)
-        : [...completedTasks, task];
-
+            ? completedTasks.filter((item) => item !== task)
+            : [...completedTasks, task];
+    
         setCompletedTasks(updatedTasks);
+        await AsyncStorage.setItem("completedTasks", JSON.stringify(updatedTasks));
+    
+        const totalTasks = [...new Set(dailyTasks)].slice(0, 3).length;
+        const allDone = updatedTasks.length >= totalTasks;
+    
+        if (allDone) {
+            const todayIndex = new Date().getDay();
+            const updatedDays = [...streakDays];
+            updatedDays[todayIndex] = true;
+            const newStreak = updatedDays.filter(Boolean).length;
+            setStreakDays(updatedDays);
+            setStreak(newStreak);
+            await AsyncStorage.setItem("streakData", JSON.stringify({ count: newStreak, days: updatedDays }));
+        }
+    };
 
-        await AsyncStorage.setItem(
-            "completedTasks", 
-            JSON.stringify(updatedTasks
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+        if (hour < 12) return "Good morning";
+        if (hour < 17) return "Good afternoon";
+        return "Good evening";
+    };
 
-            ));
-    }
+    <View style={styles.tipCard}>
+        <Text style={styles.tipLabel}>Today's Tip</Text>
+        <Text style={styles.tipText}>{dailyTip}</Text>
+    </View>
+
     return (
         <ScrollView
             style={styles.ScrollView}
             contentContainerStyle={styles.container}
             showsVerticalScrollIndicator={false}
         >
-        <Text style={styles.greeting}>Hi, {name} !</Text>
+        <Text style={styles.greeting}>{getGreeting()}, {name}</Text>
         <Text style={styles.taskTitle}>
         Here's what your curls need today.
         </Text>
 
+        <View style={styles.streakCard}>
+            <View style={styles.streakHeader}>
+                <Text style={styles.cardTitle}>Curl Streak</Text>
+                <Text style={styles.streakCount}>{streak} days</Text>
+            </View>
+            <View style={styles.streakDots}>
+                {streakDays.map((done, i) => (
+                    <View
+                        key={i}
+                        style={[styles.dot, done && styles.dotFilled]}
+                    />
+                ))}
+            </View>
+                <Text style={styles.item}>
+                {streak > 0
+                    ? `${streak} day streak — keep it going!`
+                    : "Complete today's tasks to start your streak."}
+                </Text>
+            </View>
+
         <View style={styles.heroCard}>
-            <Text style={styles.cardLabel}>Today's Curl Checklist</Text>
+            <View style={styles.checklistHeader}>
+                <Text style={styles.cardLabel}>Today's Curl Checklist</Text>
+                <Text style={styles.progressText}>
+                    {completedTasks.filter(t => [...new Set(dailyTasks)].slice(0,3).includes(t)).length}
+                    /{[...new Set(dailyTasks)].slice(0,3).length}
+                </Text>
+            </View>
+            <View style={styles.progressBarBg}>
+                <View style={[
+                    styles.progressBarFill,
+                {
+                width: `${([...new Set(dailyTasks)].slice(0,3).length > 0
+                    ? completedTasks.filter(t => [...new Set(dailyTasks)].slice(0,3).includes(t)).length
+                    / [...new Set(dailyTasks)].slice(0,3).length
+                    : 0) * 100}%`
+                }
+                ]} />
+        </View>
 
             {[...new Set(dailyTasks)].slice(0, 3).map((task) => {
                 const isCompleted = completedTasks.includes(task);
@@ -306,5 +383,78 @@ const styles = StyleSheet.create({
       color: "#444",
       fontSize: 16,
       fontWeight: "600",  
+    },
+    tipCard: {
+        backgroundColor: "#E8F4EC",
+        borderRadius: 20,
+        padding: 18,
+        marginBottom: 18,
+    },
+    tipLabel: {
+        fontSize: 12,
+        fontWeight: "700",
+        color: "#2D6A4F",
+        textTransform: "uppercase",
+        letterSpacing: 1,
+        marginBottom: 6,
+    },
+    tipText: {
+        fontSize: 15,
+        color: "#1B4332",
+        lineHeight: 22,
+    },
+
+    streakCard: {
+        backgroundColor: "#FFF9F0",
+        borderRadius: 26,
+        padding: 22,
+        marginBottom: 18,
+    },
+    streakHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 14,
+    },
+    streakCount: {
+        fontSize: 28,
+        fontWeight: "800",
+        color: "#111",
+    },
+    streakDots: {
+        flexDirection: "row",
+        gap: 8,
+        marginBottom: 12,
+    },
+    dot: {
+        width: 30,
+        height: 10,
+        borderRadius: 5,
+        backgroundColor: "#E5D9C8",
+    },
+    dotFilled: {
+        backgroundColor: "#111",
+    },
+    checklistHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 4,
+    },
+    progressText: {
+        color: "#F7F1E8",
+        fontSize: 14,
+        fontWeight: "700",
+    },
+    progressBarBg: {
+        height: 6,
+        backgroundColor: "#333",
+        borderRadius: 3,
+        marginBottom: 16,
+    },
+    progressBarFill: {
+        height: 6,
+        backgroundColor: "#F7F1E8",
+        borderRadius: 3,
     },
 });
