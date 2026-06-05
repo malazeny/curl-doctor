@@ -46,6 +46,15 @@ export default function TabsLayout() {
             ),
         }}
     />
+            <Tabs.Screen
+            name="results"
+            options={{
+            title: "Routine",
+            tabBarIcon: ({ color, size }) => (
+                <Ionicons name="list" color={color} size={size} />
+            ),
+        }}
+    />
         </Tabs>
       );
     }

@@ -1,158 +1,148 @@
 import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-import {
-    View, 
-    Text, 
-    TouchableOpacity,
-    StyleSheet,
-    ScrollView,
-} from 'react-native';
-
-import { router } from 'expo-router';
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { generateRoutine } from "../Data/generateRoutine";
 
-export default function Results() {
+export default function Routine() {
+    const [parsedAnswers, setParsedAnswers] = useState({});
 
-const [parsedAnswers, setParsedAnswers] = useState({});
-
-// console.log("PARSED ANSWERS:", parsedAnswers);
-// console.log("CONCERN:", parsedAnswers[5]);
-// console.log("GOALS:", parsedAnswers[10]);
-
-useEffect(() => {
-  const loadAnswers = async () => {
-    const savedAnswers = await AsyncStorage.getItem("quizAnswers");
-
-    if (savedAnswers) {
-      setParsedAnswers(JSON.parse(savedAnswers));
-    }
-  };
-
-  loadAnswers();
-}, []);
-
-    const name = parsedAnswers.name || "There";
+    useEffect(() => {
+        const load = async () => {
+            const saved = await AsyncStorage.getItem("quizAnswers");
+            if (saved) setParsedAnswers(JSON.parse(saved));
+        };
+        load();
+    }, []);
 
     const routine = generateRoutine(parsedAnswers);
-    const uniqueProducts = routine.products;
-    
+
     return (
-        <ScrollView 
-        style ={styles.scrollView}
-        contentContainerStyle={styles.container}
-        showsVerticalScrollIndicator={false}
+        <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.container}
+            showsVerticalScrollIndicator={false}
         >
-    
-            <Text style={styles.title}> Here is your curl prescription!</Text>
+            <Text style={styles.title}>Your Routine</Text>
+            <Text style={styles.subtitle}>
+                A personalized plan built around your curl type, porosity, and goals.
+            </Text>
 
-            {/* <Text style={styles.subtitle}>
-                Here is your curl prescription
-            </Text> */}
-
-            <RoutineSection title="Daily Routine" items={routine.daily} />
-            <RoutineSection title="Weekly Routine" items={routine.weekly} />
-            <RoutineSection title="Monthly Routine" items={routine.monthly} />
-            <RoutineSection title="Every 3 Months" items={routine.everyThreeMonths} />
-
-            <Text style={styles.sectionTitle}>Types of products to look for</Text>
-
-            {uniqueProducts.map((product, index) => (
-                <Text key ={product} style={styles.item}>
-                    • {product}
-                </Text>
-            ))}
-
-                {/* <TouchableOpacity
-                    style={styles.button}
-                    onPress={() => router.push("/(tabs)/dashboard")}
-                >
-                    <Text style={styles.buttonText}>Go to Dashboard</Text>
-                </TouchableOpacity> */}
+            <RoutineSection
+                title="Daily"
+                emoji="☀️"
+                color="#FFF9F0"
+                borderColor="#EFE2D1"
+                items={routine.daily}
+            />
+            <RoutineSection
+                title="Weekly"
+                emoji="📅"
+                color="#F0F4FF"
+                borderColor="#D1DAEF"
+                items={routine.weekly}
+            />
+            <RoutineSection
+                title="Monthly"
+                emoji="🌙"
+                color="#F4F0FF"
+                borderColor="#D9D1EF"
+                items={routine.monthly}
+            />
+            <RoutineSection
+                title="Every 3 Months"
+                emoji="✂️"
+                color="#F0FFF4"
+                borderColor="#D1EFD9"
+                items={routine.everyThreeMonths}
+            />
         </ScrollView>
     );
 }
 
-function RoutineSection ({ title, items}) {
+function RoutineSection({ title, emoji, color, borderColor, items }) {
     return (
-        <View style={styles.card}>
-            <Text style={styles.sectionTitle}>{title}</Text>
-            {items.length > 0 ? ( 
+        <View style={[styles.card, { backgroundColor: color, borderColor }]}>
+            <View style={styles.cardHeader}>
+                <Text style={styles.cardEmoji}>{emoji}</Text>
+                <Text style={styles.cardTitle}>{title}</Text>
+            </View>
+            {items.length > 0 ? (
                 [...new Set(items)].map((item) => (
-                    <Text key={item} style={styles.item}>
-                        • {item}
-                    </Text>
+                    <View key={item} style={styles.itemRow}>
+                        <View style={styles.bullet} />
+                        <Text style={styles.itemText}>{item}</Text>
+                    </View>
                 ))
             ) : (
-                <Text style={styles.item}>No routine steps yet</Text>
+                <Text style={styles.emptyText}>No steps for this frequency.</Text>
             )}
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-
     scrollView: {
         flex: 1,
-        backgroundColor: "white",
+        backgroundColor: "#fff",
     },
-
     container: {
         paddingHorizontal: 24,
         paddingTop: 80,
         paddingBottom: 40,
     },
-
     title: {
-        fontSize: 25,
-        fontWeight: "700",
-        marginBottom: 10,
+        fontSize: 30,
+        fontWeight: "800",
         color: "#111",
+        marginBottom: 8,
     },
-
     subtitle: {
-        fontSize: 16,
+        fontSize: 15,
         color: "#555",
+        lineHeight: 22,
         marginBottom: 28,
-        lineHeight: 24,
     },
-
     card: {
-        backgroundColor: "#FFF9F0",
-        borderRadius: 28,
+        borderRadius: 24,
         padding: 22,
-        marginBottom: 18,
+        marginBottom: 16,
         borderWidth: 1,
-        borderColor: "#EFE2D1",
     },
-
-    sectionTitle: {
+    cardHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 16,
+    },
+    cardEmoji: {
         fontSize: 20,
+        marginRight: 10,
+    },
+    cardTitle: {
+        fontSize: 18,
         fontWeight: "700",
-        marginBottom: 12,
         color: "#111",
     },
-
-    item: {
-        fontSize: 16,
-        color: "#333",
-        marginBottom: 6,
-        lineHeight: 24,
+    itemRow: {
+        flexDirection: "row",
+        alignItems: "flex-start",
+        marginBottom: 10,
     },
-
-    button: {
+    bullet: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
         backgroundColor: "#111",
-        paddingVertical: 18,
-        borderRadius: 999,
-        alignItems: "center",
-        marginTop: 24,
-        marginBottom: 40,
+        marginTop: 8,
+        marginRight: 10,
     },
-
-    buttonText: {
-        color: "#fff",
-        fontSize: 16,
-        fontWeight: "600",
+    itemText: {
+        fontSize: 15,
+        color: "#333",
+        lineHeight: 22,
+        flex: 1,
+    },
+    emptyText: {
+        fontSize: 15,
+        color: "#999",
     },
 });
-
