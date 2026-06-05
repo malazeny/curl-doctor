@@ -9,29 +9,32 @@ import {
   ScrollView,
 } from "react-native";
 
-import { router } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import { routineRules } from "../Data/routines";
 import { productRecommendations } from "../Data/products";
 
 export default function Dashboard() {
     const [answers, setAnswers] = useState({});
-    const [completedTasks, setCompletedTasks] = useState([]);   
+    const [completedTasks, setCompletedTasks] = useState([]);
+    const [lastWashDay, setLastWashDay] = useState(null);
+    const navigation = useNavigation();
 
-    useEffect (() => {
+    useEffect(() => {
         const loadAnswers = async () => {
-        const savedCheckIns = await AsyncStorage.getItem("weeklyCheckIns");
+            const savedCheckIns = await AsyncStorage.getItem("weeklyCheckIns");
             if (savedCheckIns) {
-            setCheckIns(JSON.parse(savedCheckIns));
+                setCheckIns(JSON.parse(savedCheckIns));
             }
             const savedAnswers = await AsyncStorage.getItem("quizAnswers");
             if (savedAnswers) {
                 setAnswers(JSON.parse(savedAnswers));
             }
-
             const savedTasks = await AsyncStorage.getItem("completedTasks");
             if (savedTasks) {
                 setCompletedTasks(JSON.parse(savedTasks));
             }
+            const savedWashDay = await AsyncStorage.getItem("lastWashDay");
+            if (savedWashDay) setLastWashDay(savedWashDay);
             const savedStreak = await AsyncStorage.getItem("streakData");
             if (savedStreak) {
                 const { count, days } = JSON.parse(savedStreak);
@@ -41,7 +44,9 @@ export default function Dashboard() {
         };
         loadAnswers();
 
-    }, []);
+        const unsubscribe = navigation.addListener("focus", loadAnswers);
+        return unsubscribe;
+    }, [navigation]);
 
     const name = answers.name || "there";  
     const [checkIns, setCheckIns] = useState([]);
@@ -120,6 +125,16 @@ export default function Dashboard() {
         return "Good evening";
     };
 
+    const getWashDayText = () => {
+        if (!lastWashDay) return "No wash day logged yet.";
+        const last = new Date(lastWashDay);
+        const today = new Date();
+        const diffDays = Math.floor((today - last) / (1000 * 60 * 60 * 24));
+        if (diffDays === 0) return "You washed your hair today!";
+        if (diffDays === 1) return "Last wash day was yesterday.";
+        return `Day ${diffDays} since your last wash.`;
+    };
+
     <View style={styles.tipCard}>
         <Text style={styles.tipLabel}>Today's Tip</Text>
         <Text style={styles.tipText}>{dailyTip}</Text>
@@ -164,6 +179,16 @@ export default function Dashboard() {
                     /{[...new Set(dailyTasks)].slice(0,3).length}
                 </Text>
             </View>
+            <View style={styles.washDayCard}>
+                <Text style={styles.cardTitle}>Wash Day</Text>
+                <Text style={styles.item}>{getWashDayText()}</Text>
+            <TouchableOpacity
+                style={styles.primaryButton}
+                onPress={() => router.push("/wash-day")}
+            >
+                <Text style={styles.primaryButtonText}>Start Wash Day Routine</Text>
+                </TouchableOpacity>
+            </View>
             <View style={styles.progressBarBg}>
                 <View style={[
                     styles.progressBarFill,
@@ -202,7 +227,7 @@ export default function Dashboard() {
             })}
         </View>
 
-        <View style={styles.card}>
+        <View style={styles.checkIncard}>
         <Text style={styles.cardTitle}>Weekly Check-In</Text>
         <Text style={styles.item}>
             Tell Curl Doctor how your hair is doing this week.
@@ -216,7 +241,7 @@ export default function Dashboard() {
         </TouchableOpacity>
     </View>
 
-    <View style={styles.card}>
+    <View style={styles.progressCard}>
     <Text style={styles.cardTitle}>Latest Progress</Text>
 
     {latestCheckIn ? (
@@ -237,7 +262,7 @@ export default function Dashboard() {
     </Text>
     )}
     </View>
-        <View style={styles.card}>
+        <View style={styles.profileCard}>
             <Text style={styles.cardTitle}>Your hair profile</Text>
             <Text style={styles.item}>• Curl Pattern: {answers[1] || "Not Set"}</Text>
             <Text style={styles.item}>• Porosity: {answers[2] || "Not Set"}</Text>
@@ -286,6 +311,12 @@ const styles = StyleSheet.create({
         fontWeight: "800",
         marginBottom: 8,
         color: "#111",
+    },
+
+    taskTitle: {
+        fontSize: 16,
+        color: "#555",
+        marginBottom: 28,
     },
 
     subtitle: {
@@ -366,6 +397,7 @@ const styles = StyleSheet.create({
         borderRadius: 999,
         alignItems: "center",
         marginTop: 12,
+        marginBottom: 4,
     },
 
     primaryButtonText: {
@@ -419,7 +451,7 @@ const styles = StyleSheet.create({
     streakCount: {
         fontSize: 28,
         fontWeight: "800",
-        color: "#111",
+        color: "#C47E5A",
     },
     streakDots: {
         flexDirection: "row",
@@ -433,7 +465,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#E5D9C8",
     },
     dotFilled: {
-        backgroundColor: "#111",
+        backgroundColor: "#C47E5A",
     },
     checklistHeader: {
         flexDirection: "row",
@@ -456,5 +488,38 @@ const styles = StyleSheet.create({
         height: 6,
         backgroundColor: "#F7F1E8",
         borderRadius: 3,
+    },
+    washDayCard: {
+        backgroundColor: "#FFF0EB",
+        borderRadius: 26,
+        padding: 22,
+        marginBottom: 18,
+        borderWidth: 1,
+        borderColor: "#F0D0C0",
+    },
+    checkInCard: {
+        backgroundColor: "#EEF4FF",
+        borderRadius: 26,
+        padding: 22,
+        paddingBottom: 28,
+        marginBottom: 18,
+        borderWidth: 1,
+        borderColor: "#C8D8F5",
+    },
+    progressCard: {
+        backgroundColor: "#F5F0FF",
+        borderRadius: 26,
+        padding: 22,
+        marginBottom: 18,
+        borderWidth: 1,
+        borderColor: "#D8CCF0",
+    },
+    profileCard: {
+        backgroundColor: "#F0F5F0",
+        borderRadius: 26,
+        padding: 22,
+        marginBottom: 18,
+        borderWidth: 1,
+        borderColor: "#C0DCC0",
     },
 });
