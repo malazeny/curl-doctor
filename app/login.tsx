@@ -1,29 +1,49 @@
-import { 
-    View, 
-    Text, 
+import { useState } from "react";
+import {
+    View,
+    Text,
     TextInput,
-    TouchableOpacity, 
-    StyleSheet, 
-    Image, 
+    TouchableOpacity,
+    StyleSheet,
      } from "react-native";
 
-import {router} from "expo-router";
+import { router } from "expo-router";
+
+const VALID_EMAIL = "hello@curldoctor.com";
+const VALID_PASSWORD = "curls2025";
 
 export default function Login() {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+
+    const handleLogin = () => {
+        if (!email || !password) {
+            setError("Please enter your email and password.");
+            return;
+        }
+        if (
+            email.trim().toLowerCase() === VALID_EMAIL &&
+            password === VALID_PASSWORD
+        ) {
+            setError("");
+            router.replace("/quiz");
+        } else {
+            setError("Incorrect email or password. Please try again.");
+        }
+    };
+
   return (
-// Back Button
     <View style={styles.container}>
         <TouchableOpacity
-            style={styles .backButton}
-            onPress={() => router.back() }
+            style={styles.backButton}
+            onPress={() => router.back()}
         >
-            <Text style={styles.backText}> ‹ Back </Text>
+            <Text style={styles.backText}>‹ Back</Text>
         </TouchableOpacity>
 
-{/* Login content */}
-
     <View style={styles.content}>
-        <Text style = {styles.title}> Welcome Back! </Text>
+        <Text style={styles.title}>Welcome Back!</Text>
 
     <View style={styles.form}>
         <TextInput
@@ -31,6 +51,12 @@ export default function Login() {
             placeholder="Email"
             placeholderTextColor="#777"
             keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={(text) => {
+                setEmail(text);
+                setError("");
+            }}
         />
 
         <TextInput
@@ -38,23 +64,26 @@ export default function Login() {
             placeholder="Password"
             placeholderTextColor="#777"
             secureTextEntry={true}
+            value={password}
+            onChangeText={(text) => {
+                setPassword(text);
+                setError("");
+            }}
         />
 
-        <TouchableOpacity style={styles.primaryButton}>
-            <Text style={styles.primaryButtonText}> Log In </Text>
+        {error ? (
+            <Text style={styles.errorText}>{error}</Text>
+        ) : null}
+
+        <TouchableOpacity style={styles.primaryButton} onPress={handleLogin}>
+            <Text style={styles.primaryButtonText}>Log In</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => router.push("/forgot-password")}>
-            <Text style={styles.signupText}> 
+            <Text style={styles.signupText}>
                 Trouble logging in?
             </Text>
         </TouchableOpacity>
-
-        {/* <TouchableOpacity onPress={() => router.push("/signup")}>
-            <Text style={styles.signupText}> 
-                Don't have an account? Sign Up 
-            </Text>
-        </TouchableOpacity> */}
         </View>
       </View>
     </View>
@@ -112,6 +141,12 @@ const styles = StyleSheet.create({
     signupText: {
         color: "#444",
         fontSize: 14,
+        textAlign: "center",
+    },
+    errorText: {
+        color: "#CC3333",
+        fontSize: 14,
+        marginBottom: 12,
         textAlign: "center",
     },
 });

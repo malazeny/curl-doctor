@@ -1,67 +1,100 @@
-import { 
-    View, 
-    Text, 
+import { useState } from "react";
+import {
+    View,
+    Text,
     TextInput,
-    TouchableOpacity, 
-    StyleSheet, 
-    Image, 
-     } from "react-native";
+    TouchableOpacity,
+    StyleSheet,
+} from "react-native";
 
-import {router} from "expo-router";
+import { router } from "expo-router";
 
 export default function Signup() {
-  return (
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [error, setError] = useState("");
 
-// Back Button
-    <View style={styles.container}>
-        <TouchableOpacity
-            style={styles .backButton}
-            onPress={() => router.back() }
-        >
-            <Text style={styles.backText}> ‹ Back </Text>
-        </TouchableOpacity>
+    const handleSignup = () => {
+        if (!email || !password || !confirmPassword) {
+            setError("Please fill in all fields.");
+            return;
+        }
+        if (!email.includes("@") || !email.includes(".")) {
+            setError("Please enter a valid email address.");
+            return;
+        }
+        if (password.length < 6) {
+            setError("Password must be at least 6 characters.");
+            return;
+        }
+        if (password !== confirmPassword) {
+            setError("Passwords do not match.");
+            return;
+        }
+        setError("");
+        router.push("/quiz");
+    };
 
-{/* Signup content */}
+    return (
+        <View style={styles.container}>
+            <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => router.back()}
+            >
+                <Text style={styles.backText}>‹ Back</Text>
+            </TouchableOpacity>
 
-    <View style={styles.content}>
-        <Text style = {styles.title}> Get started </Text>
-        <Text style = {styles.subtitle}> First create your account </Text>
+            <View style={styles.content}>
+                <Text style={styles.title}>Get started</Text>
+                <Text style={styles.subtitle}>First create your account</Text>
 
-    <View style={styles.form}>
-        <TextInput
-            style={styles.input}
-            placeholder="Email"
-            placeholderTextColor="#777"
-            keyboardType="email-address"
-        />
+                <View style={styles.form}>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Email"
+                        placeholderTextColor="#777"
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        value={email}
+                        onChangeText={(text) => { setEmail(text); setError(""); }}
+                    />
 
-        <TextInput
-            style={styles.input}
-            placeholder="Password"
-            placeholderTextColor="#777"
-            secureTextEntry={true}
-        />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Password"
+                        placeholderTextColor="#777"
+                        secureTextEntry={true}
+                        value={password}
+                        onChangeText={(text) => { setPassword(text); setError(""); }}
+                    />
 
-        <TextInput
-            style={styles.input}
-            placeholder="Confirm password"
-            placeholderTextColor="#777"
-            secureTextEntry={true}
-        />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Confirm password"
+                        placeholderTextColor="#777"
+                        secureTextEntry={true}
+                        value={confirmPassword}
+                        onChangeText={(text) => { setConfirmPassword(text); setError(""); }}
+                    />
 
-        <TouchableOpacity style={styles.primaryButton} onPress={() => router.push("/quiz")}>
-            <Text style={styles.primaryButtonText}> Create Account </Text>
-        </TouchableOpacity>
+                    {error ? (
+                        <Text style={styles.errorText}>{error}</Text>
+                    ) : null}
 
-        <TouchableOpacity onPress={() => router.push("/login")}>
-            <Text style={styles.signupText}> 
-                Already have an Account?
-            </Text>
-        </TouchableOpacity>
+                    <TouchableOpacity style={styles.primaryButton} onPress={handleSignup}>
+                        <Text style={styles.primaryButtonText}>Create Account</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={() => router.push("/login")}>
+                        <Text style={styles.signupText}>
+                            Already have an account?
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
         </View>
-      </View>
-    </View>
-  );
+    );
 }
 
 const styles = StyleSheet.create({
@@ -120,6 +153,12 @@ const styles = StyleSheet.create({
     signupText: {
         color: "#444",
         fontSize: 14,
+        textAlign: "center",
+    },
+    errorText: {
+        color: "#CC3333",
+        fontSize: 14,
+        marginBottom: 12,
         textAlign: "center",
     },
 });

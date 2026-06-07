@@ -17,7 +17,7 @@ const slides = [
         id: "1",
         title: "Welcome to Curl Doctor",
         description:
-            "Your personalized curly hair guide — built around your unique curl type, porosity, and goals.",
+            "Your personalized curly hair guide. Built around your unique curl type, porosity, and goals.",
     },
     {
         id: "2",
@@ -46,14 +46,19 @@ export default function Onboarding() {
         }
     };
 
+    const handleSkip = async () => {
+        await AsyncStorage.setItem("hasSeenOnboarding", "true");
+        router.replace("/");
+    };
+
     const handleFinish = async () => {
         await AsyncStorage.setItem("hasSeenOnboarding", "true");
-        router.replace("/signup");
+        router.replace("/");
     };
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity style={styles.skipButton} onPress={handleFinish}>
+            <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
                 <Text style={styles.skipText}>Skip</Text>
             </TouchableOpacity>
 
